@@ -5,7 +5,7 @@
 #include <sys/un.h>
 #include <stdlib.h>
 #include <string.h>
-
+char *socket_name = "socket";
 int main(int argc, char *argv[]){
 	struct sockaddr_un addr,address;
 	char buf[100];
@@ -14,7 +14,7 @@ int main(int argc, char *argv[]){
 	
 	int pid = fork();
     
-	if(pid==0){
+	if(pid!=0){
 		fd = socket(AF_UNIX, SOCK_STREAM, 0);
 		address.sun_family = AF_UNIX;
 		strncpy(address.sun_path, "socket", sizeof(address.sun_path)-1);
@@ -40,7 +40,7 @@ int main(int argc, char *argv[]){
 	  }
 
 	}
-	else{  
+	else if(pid==0){  
 	  if ( (fd = socket(AF_UNIX, SOCK_STREAM, 0)) == -1) {
 		perror("socket error");
 		exit(-1);
@@ -51,11 +51,11 @@ int main(int argc, char *argv[]){
 	  
 	  strncpy(addr.sun_path, "socket", sizeof(addr.sun_path)-1);
 
-	  {
+	  /*{
 	  	  unsigned int i = 0;
 	  	  for(i = 0; i < 0xFFFFFFFC;i++) 
-	  	  	 if(i%100000==0) printf("Waiting for parent thread to finish socket init %d\n",i);
-	  }
+	  	  	 if(i%0xFFFFFFF==0) printf("Waiting for parent thread to finish socket init %d\n",i);
+	  }*/
 	  connect(fd, (struct sockaddr*)&addr, sizeof(addr));
 	
 	  while( (rc=read(STDIN_FILENO, buf, sizeof(buf))) > 0) {
